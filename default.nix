@@ -7,14 +7,34 @@ let
     sha256 = "1pqdddp4aiz726c7qs1dwyfzixi14shp0mbzi1jhapl9hrajfsjg";
   };
   pkgs = import nixpkgs { config = { allowUnfree = true; }; };
+  pythonPackages = pkgs.python36Packages;
+
+  python-spinsfast = import example4/spinsfast.nix { pythonPackages = pythonPackages; };
+  my-local-hello-world = import example4/hello_world { };
 in
 pkgs.mkShell {
-  buildInputs = with pkgs; [
-    python36Packages.numpy python36Packages.scipy
-    python36Packages.jupyterlab
+  buildInputs = [
+    pythonPackages.numpy
+    pythonPackages.scipy
+    pythonPackages.jupyterlab
+    python-spinsfast
+    my-local-hello-world
   ];
 
   shellHook = ''
-    export NIX_PATH="nixpkgs=${nixpkgs}:."
+    if [ ! -f $HOME/.dockerbuildphase ]; then
+      touch $HOME/.dockerbuildphase
+      export DOCKER_BUILD_PHASE=true
+    fi
+
+    if [ "$DOCKER_BUILD_PHASE" = true ]; then
+      echo "Do some action in build phase"
+    fi
+
+    if [ "$DOCKER_BUILD_PHASE" = false ]; then
+      echo "Do some action in run phase like start db"
+    fi
+
+    echo "Do some action in both phases"
   '';
 }
