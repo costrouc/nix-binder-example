@@ -17,8 +17,13 @@ pkgs.mkShell {
     pythonPackages.numpy
     pythonPackages.scipy
     pythonPackages.jupyterlab
+
+    # for demo and notebooks
     python-spinsfast
     my-local-hello-world
+    pythonPackages.pythonix
+    pythonPackages.graphviz
+    pkgs.tree
   ];
 
   shellHook = ''
